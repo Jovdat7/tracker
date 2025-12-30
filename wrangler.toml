@@ -1,0 +1,3 @@
+name = "location-worker"
+compatibility_date = "2025-12-30"
+main = "worker.js"
