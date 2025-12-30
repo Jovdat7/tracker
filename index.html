@@ -1,69 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chess Game</title>
-
-<!-- Chessboard.css -->
-<link rel="stylesheet" href="https://unpkg.com/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
-
-<style>
-body {
-  margin:0;
-  font-family: system-ui, sans-serif;
-  background: linear-gradient(135deg,#1e293b,#0f172a);
-  color:white;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  min-height:100vh;
-}
-.card {
-  background:#111827;
-  padding:20px;
-  border-radius:14px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.5);
-  text-align:center;
-}
-#board {
-  margin-top:15px;
-  width:400px;
-  height:400px;
-}
-</style>
+	<title>Chess - Thomas Fisher (100198032)</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body onload="setup();">
 
-<div class="card">
-  <h1>Chess Game</h1>
-  <p>Drag and drop to play.</p>
-  <div id="board"></div>
-</div>
+<h1>Thomas Fisher's and Max Shvartsman's Chess Project</h1>
+<p id="turnInfo">Player's turn: <b>White</b></p>
+<section id="board">
+    <div class="overlay" id="promotionMessage">
+        <div class="overlay-inner">
+            <span class="overlay-title">Promotion!</span>
+            <p class="overlay-text" id="alertText"></p>
+            <ul id="promotionList" class="white">
+                <li><a href="#" class="promotion-button queen" onclick="promote('queen');"></a></li>
+                <li><a href="#" class="promotion-button castle" onclick="promote('castle');"></a></li>
+                <li><a href="#" class="promotion-button bishop" onclick="promote('bishop');"></a></li>
+                <li><a href="#" class="promotion-button knight" onclick="promote('knight');"></a></li>
+            </ul>
+        </div>
+    </div>
+	<div class="overlay" id="errorMessage">
+		<div class="overlay-inner">
+			<span class="overlay-title">Error!</span>
+			<p class="overlay-text" id="errorText"></p>
+			<a href="#" class="overlay-button" onclick="closeError();">Close</a>
+		</div>
+	</div>
+	<div class="overlay" id="endMessage">
+		<div class="overlay-inner">
+			<span class="overlay-title">Game Over!</span>
+			<p class="overlay-text" id="endText"></p>
+			<a href="#" class="overlay-button" onclick="newGame();">New Game</a>
+		</div>
+	</div>
+</section>
 
-<!-- Chess.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.13.4/chess.min.js"></script>
-<!-- Chessboard.js -->
-<script src="https://unpkg.com/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
-
-<script>
-let game = new Chess();
-let board = Chessboard('board', {
-  draggable: true,
-  position: 'start',
-  onDrop: (source, target) => {
-    let move = game.move({from: source, to: target, promotion:'q'});
-    if(!move) return 'snapback';
-    board.position(game.fen());
-    if(game.game_over()){
-      if(game.in_checkmate()) alert("Checkmate!");
-      else if(game.in_stalemate()) alert("Stalemate!");
-      else if(game.in_draw()) alert("Draw!");
-    }
-  }
-});
-</script>
+<script type="text/javascript" src="js/scripts.js"></script>
 
 </body>
 </html>
