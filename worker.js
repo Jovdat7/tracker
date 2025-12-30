@@ -1,26 +1,21 @@
-export default {
-  async fetch(request, env) {
-    const url = new URL(request.url);
+addEventListener('fetch', event => {
+  event.respondWith(handleRequest(event.request))
+})
 
-    if (request.method === "POST" && url.pathname === "/track") {
-      const data = await request.json();
+const WEBHOOK_URL = "https://discord.com/api/webhooks/1455629160826277968/TzDzMc_H_OnARb-HzRWDylEMqF76sZAS9phKwHnyCaPd9Vp0FCLx8IDD-uF55X5LnJ2U"
 
-      const payload = {
-        content: `📍 **User Location Received**
-🕒 Time: ${data.time}
-🌐 Latitude: ${data.latitude}
-🌐 Longitude: ${data.longitude}`
-      };
-
-      await fetch(env.DISCORD_WEBHOOK, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(payload)
-      });
-
-      return new Response("Location sent!", { status: 200 });
-    }
-
-    return new Response("Not found", { status: 404 });
+async function handleRequest(request) {
+  try {
+    const data = await request.json()
+    await fetch(WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        content: `📍 New location\nLat: ${data.lat}\nLon: ${data.lon}\nAccuracy: ±${data.acc}m`
+      })
+    })
+    return new Response(JSON.stringify({status: "ok"}), {status: 200})
+  } catch (err) {
+    return new Response(JSON.stringify({status: "error", message: err.message}), {status: 500})
   }
-};
+}
