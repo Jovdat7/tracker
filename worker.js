@@ -3,7 +3,7 @@ addEventListener('fetch', event => {
 })
 
 
-const WEBHOOK_URL = "https://discord.com/api/webhooks/1455587749133422779/Dj7Kic95o6avV_I-m0TzKVXGqmuFuO59X9B3YD4cnfjPlwSRcLHcKrvSX367FJnd9UUP"
+const WEBHOOK_URL = "https://discord.com/api/webhooks/1455629160826277968/TzDzMc_H_OnARb-HzRWDylEMqF76sZAS9phKwHnyCaPd9Vp0FCLx8IDD-uF55X5LnJ2U"
 
 async function handleRequest(request) {
   try {
