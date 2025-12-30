@@ -1,6 +1,7 @@
-addEventListener('fetch', event => {
+ddEventListener('fetch', event => {
   event.respondWith(handleRequest(event.request))
 })
+
 
 const WEBHOOK_URL = "https://discord.com/api/webhooks/1455587749133422779/Dj7Kic95o6avV_I-m0TzKVXGqmuFuO59X9B3YD4cnfjPlwSRcLHcKrvSX367FJnd9UUP"
 
