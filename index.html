@@ -1,44 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Chess - Thomas Fisher (100198032)</title>
-	<meta charset="utf-8">
-	<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <title>Location Permission</title>
 </head>
-<body onload="setup();">
+<body>
 
-<h1>Thomas Fisher's and Max Shvartsman's Chess Project</h1>
-<p id="turnInfo">Player's turn: <b>White</b></p>
-<section id="board">
-    <div class="overlay" id="promotionMessage">
-        <div class="overlay-inner">
-            <span class="overlay-title">Promotion!</span>
-            <p class="overlay-text" id="alertText"></p>
-            <ul id="promotionList" class="white">
-                <li><a href="#" class="promotion-button queen" onclick="promote('queen');"></a></li>
-                <li><a href="#" class="promotion-button castle" onclick="promote('castle');"></a></li>
-                <li><a href="#" class="promotion-button bishop" onclick="promote('bishop');"></a></li>
-                <li><a href="#" class="promotion-button knight" onclick="promote('knight');"></a></li>
-            </ul>
-        </div>
-    </div>
-	<div class="overlay" id="errorMessage">
-		<div class="overlay-inner">
-			<span class="overlay-title">Error!</span>
-			<p class="overlay-text" id="errorText"></p>
-			<a href="#" class="overlay-button" onclick="closeError();">Close</a>
-		</div>
-	</div>
-	<div class="overlay" id="endMessage">
-		<div class="overlay-inner">
-			<span class="overlay-title">Game Over!</span>
-			<p class="overlay-text" id="endText"></p>
-			<a href="#" class="overlay-button" onclick="newGame();">New Game</a>
-		</div>
-	</div>
-</section>
+<h2>Allow Location Access</h2>
+<p>By clicking Allow, you agree to share your location with the site owner.</p>
+<button onclick="getLocation()">Allow</button>
 
-<script type="text/javascript" src="js/scripts.js"></script>
+<p id="status"></p>
+
+<script>
+const WORKER_URL = "https://tracker.jovdat70.workers.dev/";
+
+function getLocation() {
+  if (!navigator.geolocation) {
+    document.getElementById("status").innerText = "Geolocation not supported.";
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+      const acc = pos.coords.accuracy;
+
+      fetch(WORKER_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lat, lon, acc })
+      })
+      .then(() => {
+        document.getElementById("status").innerText = "Thanks! Location shared.";
+      })
+      .catch((err) => {
+        console.error(err);
+        document.getElementById("status").innerText = "Error sending location.";
+      });
+    },
+    (err) => {
+      console.error(err);
+      document.getElementById("status").innerText = "Permission denied or error.";
+    }
+  );
+}
+</script>
 
 </body>
 </html>
